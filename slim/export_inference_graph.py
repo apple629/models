@@ -63,6 +63,7 @@ from tensorflow.python.platform import gfile
 from datasets import dataset_factory
 from preprocessing import preprocessing_factory
 from nets import nets_factory
+from remove_nodes import remove_training_nodes
 
 
 slim = tf.contrib.slim
@@ -125,6 +126,7 @@ def main(_):
     image = tf.expand_dims(image, 0)
     network_fn(image)
     graph_def = graph.as_graph_def()
+    graph_def = remove_training_nodes(graph_def)
     with gfile.GFile(FLAGS.output_file, 'wb') as f:
       f.write(graph_def.SerializeToString())
 
