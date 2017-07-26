@@ -75,6 +75,10 @@ tf.app.flags.DEFINE_boolean(
     'is_training', False,
     'Whether to save out a training-focused version of the model.')
 
+tf.app.flags.DEFINE_boolean(
+    'for_app', False,
+    'Whether to save out a training-focused version of the model.')
+
 tf.app.flags.DEFINE_integer(
     'default_image_size', 224,
     'The image size to use if the model does not define it.')
@@ -120,10 +124,14 @@ def main(_):
       image_size = FLAGS.default_image_size
 #    placeholder = tf.placeholder(name='input', dtype=tf.float32,
 #                                 shape=[1, image_size, image_size, 3])
-    placeholder = tf.placeholder(name='input', dtype=tf.string)
-    image = tf.image.decode_jpeg(placeholder, channels=3)
-    image = image_preprocessing_fn(image, image_size, image_size)
-    image = tf.expand_dims(image, 0)
+    if not FLAGS.for_app:
+      placeholder = tf.placeholder(name='input', dtype=tf.string)
+      image = tf.image.decode_jpeg(placeholder, channels=3)
+      image = image_preprocessing_fn(image, image_size, image_size)
+      image = tf.expand_dims(image, 0)
+    else:
+      placeholder = tf.placeholder(name='input', dtype=tf.float32, 
+                                   shape=[1, image_size, image_size, 3])
     network_fn(image)
     graph_def = graph.as_graph_def()
     graph_def = remove_training_nodes(graph_def)
